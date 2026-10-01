@@ -18,7 +18,15 @@
       <span class="vs">vs</span>
       <label>Справа <select id="botB"></select></label>
     </div>
+    <div class="row" id="humanStats" hidden>
+      <label>Броня <input data-stat="armor" type="number" min="0" max="5" value="3"></label>
+      <label>Двигатель <input data-stat="engine" type="number" min="0" max="5" value="3"></label>
+      <label>Орудие <input data-stat="gun" type="number" min="0" max="5" value="2"></label>
+      <label>Перезарядка <input data-stat="reload" type="number" min="0" max="5" value="2"></label>
+      <span class="sum" id="statSum"></span>
+    </div>
     <div class="row">
+      <label>Карта <select id="mapSel"></select></label>
       <label>До побед <input id="firstTo" type="number" min="1" max="9" value="4"></label>
       <label>Раундов в турнире <input id="tourRounds" type="number" min="1" max="1000" value="100"></label>
       <button type="button" id="btnReload" class="ghost">Обновить список</button>
@@ -30,6 +38,7 @@
     </div>
     <p id="status"></p>
     <p class="keys">Пробел — старт/пауза · 1/2/3/0 — скорость ×1/×2/×4/×0.5 · M — звук · F — полный экран · D — отладка · T — турнир после матча · Esc — меню</p>
+    <p class="keys">Игра за «Человека»: 10 очков на характеристики выше · W/S или ↑/↓ — газ · A/D или ←/→ — поворот · мышь — башня · ЛКМ или пробел — огонь · Q/E — башня без мыши · P — пауза</p>
   </form>
   <script type="module" src="main.js"></script>
 </body>

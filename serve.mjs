@@ -21,8 +21,14 @@ const TYPES = {
   '.md': 'text/markdown; charset=utf-8',
 };
 
+// Human-driven tank: no bot.js, the viewer reads the keyboard instead and lets the player pick stats.
+const HUMAN = {
+  id: 'human', dir: '/kit/tank/', model: 'Клавиатура и мышь', color: '#f2f2f2', human: true,
+  name: 'Человек', motto: 'Руки не дрожат', stats: { armor: 3, engine: 3, gun: 2, reload: 2 },
+};
+
 async function listBots() {
-  const bots = [];
+  const bots = [HUMAN];
   const sparring = join(root, 'kit', 'arena', 'sparring');
   for (const name of await readdir(sparring)) {
     if (existsSync(join(sparring, name, 'bot.js'))) {

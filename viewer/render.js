@@ -112,6 +112,13 @@ export class Renderer {
     this.offY = (this.canvas.height - VIEW_H * this.scale) / 2;
   }
 
+  // Page coordinates (e.g. a mouse event) -> arena coordinates.
+  toWorld(clientX, clientY) {
+    const px = clientX * (this.canvas.width / innerWidth);
+    const py = clientY * (this.canvas.height / innerHeight);
+    return { x: (px - this.offX) / this.scale - OX, y: (py - this.offY) / this.scale - OY };
+  }
+
   // ---------- static layers ----------
 
   floorFor(mapIndex) {
@@ -1144,10 +1151,11 @@ export class Renderer {
     ctx.font = `600 18px ${BODY}`;
     ctx.textAlign = 'center';
     const mw = 280;
-    T.byMap.forEach((m, i) => {
-      const x = VIEW_W / 2 - (mw * T.byMap.length) / 2 + mw * i + mw / 2;
+    const shown = T.mapIndex == null ? T.byMap.map((m, i) => [m, i]) : [[T.byMap[T.mapIndex], T.mapIndex]];
+    shown.forEach(([m, mi], i) => {
+      const x = VIEW_W / 2 - (mw * shown.length) / 2 + mw * i + mw / 2;
       ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.fillText(MAPS[i].name, x, 1000);
+      ctx.fillText(MAPS[mi].name, x, 1000);
       ctx.fillStyle = A.color;
       ctx.textAlign = 'right';
       ctx.fillText(String(m.wins[0]), x - 16, 1034);

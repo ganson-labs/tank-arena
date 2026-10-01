@@ -1,5 +1,6 @@
 import * as E from '/kit/arena/engine.js';
 import { BotHost } from './bot-host.js';
+import { HumanHost } from './human-host.js';
 import { Renderer } from './render.js';
 import { Sfx } from './sfx.js';
 
@@ -17,6 +18,7 @@ const ui = {
   score: [0, 0],
   roundIndex: 0,
   firstTo: 4,
+  mapIndex: null, // null — карты по кругу
   countdown: null,
   banner: null,
   matchEnd: null,
@@ -70,7 +72,62 @@ async function loadBotList() {
   $('#botA').value = params.get('a') || contest[0]?.id || 'sparring/hunter';
   $('#botB').value = params.get('b') || contest[1]?.id || 'sparring/dummy';
   if (params.get('first')) $('#firstTo').value = params.get('first');
+  updateHumanStats();
 }
+
+// ---------- map picker ----------
+
+function loadMapList() {
+  const sel = $('#mapSel');
+  sel.innerHTML = '';
+  const all = document.createElement('option');
+  all.value = '';
+  all.textContent = 'По кругу';
+  sel.appendChild(all);
+  E.MAPS.forEach((m, i) => {
+    const o = document.createElement('option');
+    o.value = String(i);
+    o.textContent = m.name;
+    sel.appendChild(o);
+  });
+  const want = params.get('map');
+  if (want != null) {
+    const byName = E.MAPS.findIndex((m) => m.name.toLowerCase() === want.toLowerCase());
+    const idx = byName >= 0 ? byName : Number(want);
+    if (Number.isInteger(idx) && idx >= 0 && idx < E.MAPS.length) sel.value = String(idx);
+  }
+}
+
+// Fixed map: sides still alternate every round so neither spawn gets an edge.
+function planRound(i) {
+  if (ui.mapIndex == null) return E.roundPlan(i);
+  return { mapIndex: ui.mapIndex, swap: i % 2 === 1 };
+}
+
+// ---------- human stats picker ----------
+
+const statInputs = () => [...document.querySelectorAll('#humanStats input')];
+const selectedIsHuman = () => [$('#botA').value, $('#botB').value].some((id) => bots.find((b) => b.id === id)?.human);
+
+function readHumanStats() {
+  const stats = {};
+  for (const inp of statInputs()) stats[inp.dataset.stat] = Number(inp.value);
+  return stats;
+}
+
+function updateHumanStats() {
+  $('#humanStats').hidden = !selectedIsHuman();
+  const stats = readHumanStats();
+  const check = E.checkStats(stats);
+  const total = E.STAT_KEYS.reduce((s, k) => s + (stats[k] || 0), 0);
+  $('#statSum').textContent = check.ok ? `${total} / ${E.STAT_POINTS}` : check.error;
+  $('#statSum').classList.toggle('error', !check.ok);
+}
+
+const hs = (params.get('hs') || '').split(',').map(Number);
+if (hs.length === 4 && hs.every(Number.isInteger)) statInputs().forEach((inp, i) => (inp.value = hs[i]));
+for (const inp of statInputs()) inp.addEventListener('input', updateHumanStats);
+for (const sel of [$('#botA'), $('#botB')]) sel.addEventListener('change', updateHumanStats);
 
 function loadImage(url) {
   return new Promise((resolve) => {
@@ -81,8 +138,11 @@ function loadImage(url) {
   });
 }
 
+const makeHost = (entry) => (entry.human ? new HumanHost(entry, R) : new BotHost(entry));
+const humanPlaying = () => Boolean(contestants?.some((c) => c.entry.human)) && (ui.phase === 'countdown' || ui.phase === 'fight');
+
 async function loadContestant(entry) {
-  const host = new BotHost(entry);
+  const host = makeHost(entry);
   const info = await host.load();
   const check = E.checkStats(info.stats);
   if (!check.ok) {
@@ -106,7 +166,7 @@ async function loadContestant(entry) {
 async function loadHosts(c) {
   // Fresh workers = fresh module state for every match.
   c.host?.dispose();
-  c.host = new BotHost(c.entry);
+  c.host = makeHost(c.entry);
   await c.host.load();
 }
 
@@ -121,8 +181,9 @@ async function prepare() {
   $('#status').textContent = 'Загружаю ботов…';
   $('#status').classList.remove('error');
   ui.firstTo = Math.max(1, Math.min(9, Number($('#firstTo').value) || 4));
+  ui.mapIndex = $('#mapSel').value === '' ? null : Number($('#mapSel').value);
   const ids = [$('#botA').value, $('#botB').value];
-  const entries = ids.map((id) => bots.find((b) => b.id === id));
+  const entries = ids.map((id) => bots.find((b) => b.id === id)).map((b) => (b.human ? { ...b, stats: readHumanStats() } : b));
   const loaded = [];
   for (const e of entries) loaded.push(await loadContestant(e));
   if (loaded[0].color.toLowerCase() === loaded[1].color.toLowerCase()) loaded[1].color = ALT_COLOR;
@@ -138,6 +199,10 @@ async function start(mode) {
   } catch (err) {
     console.error(err);
     showMenu(String(err.message || err), true);
+    return;
+  }
+  if (mode === 'tournament' && contestants.some((c) => c.entry.human)) {
+    showMenu('Турнир на скорости — только между ботами: человек не успеет за тиками без пауз.', true);
     return;
   }
   const token = ++runToken;
@@ -193,7 +258,7 @@ async function runMatch(token) {
   let i = 0;
   while (Math.max(...ui.score) < ui.firstTo) {
     ui.roundIndex = i;
-    const plan = E.roundPlan(i);
+    const plan = planRound(i);
     const order = plan.swap ? [1, 0] : [0, 1];
     const round = E.createRound({ mapIndex: plan.mapIndex, tanks: order.map((ci) => ({ name: contestants[ci].name, stats: contestants[ci].stats })) });
     R.newRound(round, order, contestants);
@@ -282,12 +347,13 @@ async function runTournament(token, n) {
     draws: 0,
     stats: [emptyStats(), emptyStats()],
     byMap: E.MAPS.map(() => ({ wins: [0, 0], draws: 0 })),
+    mapIndex: ui.mapIndex,
     finished: false,
   };
   ui.tournament = T;
   ui.phase = 'tournament';
   for (let i = 0; i < n; i++) {
-    const plan = E.roundPlan(i);
+    const plan = planRound(i);
     const order = plan.swap ? [1, 0] : [0, 1];
     const round = E.createRound({ mapIndex: plan.mapIndex, tanks: order.map((ci) => ({ name: contestants[ci].name, stats: contestants[ci].stats })) });
     await initBots(round, order, i);
@@ -344,6 +410,15 @@ requestAnimationFrame(loop);
 addEventListener('keydown', (e) => {
   if (e.target.closest?.('#menu') && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
+  if (humanPlaying()) {
+    // Letters and Space belong to the player while the round runs; P pauses instead.
+    if (k === 'p') ui.paused = !ui.paused;
+    else if (k === 'escape') showMenu();
+    else if (k === '1') ui.speed = 1;
+    else if (k === '2') ui.speed = 2;
+    else if (k === '0') ui.speed = 0.5;
+    return;
+  }
   if (k === ' ') {
     e.preventDefault();
     if (ui.phase === 'intro') runMatch(runToken);
@@ -359,7 +434,7 @@ addEventListener('keydown', (e) => {
   else if (k === 'f') {
     if (document.fullscreenElement) document.exitFullscreen();
     else document.documentElement.requestFullscreen();
-  } else if (k === 't' && ui.phase === 'matchEnd') {
+  } else if (k === 't' && ui.phase === 'matchEnd' && !contestants.some((c) => c.entry.human)) {
     const token = ++runToken;
     runTournament(token, Number($('#tourRounds').value) || 100);
   }
@@ -370,6 +445,7 @@ $('#btnFight').onclick = () => start('fight');
 $('#btnTour').onclick = () => start('tournament');
 $('#btnReload').onclick = () => loadBotList();
 
+loadMapList();
 loadBotList()
   .then(() => {
     if (params.get('auto')) start(params.get('auto'));

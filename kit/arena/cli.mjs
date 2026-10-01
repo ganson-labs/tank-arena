@@ -4,6 +4,7 @@
 //   node arena/cli.mjs --vs dummy --rounds 4
 //   node arena/cli.mjs --vs tank            -> mirror match against yourself
 //   node arena/cli.mjs --map Каньон --verbose
+//   node arena/cli.mjs --fresh                -> each round loads both bots anew: no memory between rounds
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -16,7 +17,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
 
 function parseArgs(argv) {
-  const opts = { tank: 'tank', vs: 'hunter', rounds: 8, map: null, verbose: false };
+  const opts = { tank: 'tank', vs: 'hunter', rounds: 8, map: null, verbose: false, fresh: false };
   const rest = [];
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -24,6 +25,7 @@ function parseArgs(argv) {
     else if (a === '--rounds') opts.rounds = Number(argv[++i]);
     else if (a === '--map') opts.map = argv[++i];
     else if (a === '--verbose' || a === '-v') opts.verbose = true;
+    else if (a === '--fresh') opts.fresh = true;
     else if (a === '--help' || a === '-h') opts.help = true;
     else rest.push(a);
   }
@@ -37,15 +39,21 @@ function resolveBotDir(spec) {
   throw new Error(`Не нашёл bot.js для «${spec}». Искал: ${candidates.join(', ')}`);
 }
 
-async function loadBot(dir, instance) {
-  // The query string gives each side its own module instance (mirror matches).
-  const url = pathToFileURL(join(dir, 'bot.js')).href + `?instance=${instance}`;
+// The query string gives each side its own module instance (mirror matches);
+// a distinct `fresh` value forces a brand-new instance with empty module state.
+async function importBot(dir, instance, fresh) {
+  const url = pathToFileURL(join(dir, 'bot.js')).href + `?instance=${instance}&fresh=${fresh}`;
   const mod = await import(url);
   const bot = mod.default ?? mod;
   if (!bot || typeof bot.tick !== 'function') throw new Error(`${dir}/bot.js: нет export default { tick(state) { ... } }`);
+  return bot;
+}
+
+async function loadBot(dir, instance) {
+  const bot = await importBot(dir, instance, 0);
   const check = checkStats(bot.stats);
   if (!check.ok) throw new Error(`${dir}/bot.js: неверные stats — ${check.error} (всего ${STAT_POINTS} очков, каждое 0..5)`);
-  return { bot, dir, name: String(bot.name || 'Без имени'), errors: 0, timeMax: 0, timeSum: 0, calls: 0 };
+  return { bot, dir, instance, name: String(bot.name || 'Без имени'), errors: 0, timeMax: 0, timeSum: 0, calls: 0 };
 }
 
 function callBot(entry, fn, arg) {
@@ -71,7 +79,7 @@ const pct = (a, b) => (b ? Math.round((100 * a) / b) + '%' : '—');
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
   if (opts.help) {
-    console.log('node arena/cli.mjs [папка-танка=tank] [--vs hunter|dummy|tank|путь] [--rounds 8] [--map имя] [--verbose]');
+    console.log('node arena/cli.mjs [папка-танка=tank] [--vs hunter|dummy|tank|путь] [--rounds 8] [--map имя] [--verbose] [--fresh]');
     return;
   }
   const me = await loadBot(resolveBotDir(opts.tank), 0);
@@ -81,11 +89,14 @@ async function main() {
     : -1;
   if (opts.map && mapFilter < 0) throw new Error(`Нет карты «${opts.map}». Есть: ${MAPS.map((m) => m.name).join(', ')}`);
 
-  console.log(`\n${me.name}  vs  ${foe.name}   (${opts.rounds} раундов)\n`);
+  console.log(`\n${me.name}  vs  ${foe.name}   (${opts.rounds} раундов${opts.fresh ? ', боты без памяти между раундами' : ''})\n`);
   const score = { win: 0, loss: 0, draw: 0 };
   const total = { dealt: 0, taken: 0, shots: 0, hits: 0, self: 0 };
 
   for (let i = 0; i < opts.rounds; i++) {
+    if (opts.fresh && i > 0) {
+      for (const e of [me, foe]) e.bot = await importBot(e.dir, e.instance, i);
+    }
     const plan = roundPlan(i);
     const mapIndex = mapFilter >= 0 ? mapFilter : plan.mapIndex;
     const mySide = plan.swap ? 1 : 0;
