@@ -1,0 +1,23 @@
+R 1 Полигон   L WIN    7.3s kill HP 100/100 vs 0/175 | A 5/11 ric 1 icp 1 self 0 kit 0 zone 0 | B 0/4 ric 0 self 0
+R 2 Лабиринт  R WIN    8.9s kill HP 100/100 vs 0/175 | A 5/11 ric 5 icp 0 self 0 kit 0 zone 0 | B 0/0 ric 0 self 0
+R 3 Крепости  L WIN   14.5s kill HP 72/100 vs 0/175 | A 5/15 ric 3 icp 0 self 0 kit 0 zone 0 | B 1/3 ric 0 self 0
+R 4 Каньон    R WIN    8.1s kill HP 100/100 vs 0/175 | A 5/15 ric 1 icp 2 self 0 kit 0 zone 0 | B 0/9 ric 0 self 0
+R 5 Полигон   R WIN    8.5s kill HP 100/100 vs 0/175 | A 5/13 ric 1 icp 0 self 0 kit 0 zone 0 | B 0/5 ric 0 self 0
+R 6 Лабиринт  L WIN    7.6s kill HP 100/100 vs 0/175 | A 5/10 ric 1 icp 1 self 0 kit 0 zone 0 | B 0/4 ric 0 self 0
+R 7 Крепости  R WIN   12.7s kill HP 100/100 vs 0/175 | A 5/15 ric 0 icp 0 self 0 kit 0 zone 0 | B 0/0 ric 0 self 0
+R 8 Каньон    L WIN    7.9s kill HP 100/100 vs 0/175 | A 5/13 ric 0 icp 0 self 0 kit 0 zone 0 | B 0/8 ric 0 self 0
+R 9 Полигон   L WIN    7.1s kill HP 100/100 vs 0/175 | A 5/10 ric 4 icp 0 self 0 kit 0 zone 0 | B 0/0 ric 0 self 0
+R10 Лабиринт  R WIN    6.8s kill HP 100/100 vs 0/175 | A 5/9 ric 1 icp 0 self 0 kit 0 zone 0 | B 0/3 ric 0 self 0
+R11 Крепости  L WIN   15.7s kill HP 100/100 vs 0/175 | A 5/23 ric 3 icp 2 self 0 kit 0 zone 0 | B 0/4 ric 0 self 0
+R12 Каньон    R WIN    7.2s kill HP 100/100 vs 0/175 | A 5/14 ric 1 icp 1 self 0 kit 0 zone 0 | B 0/7 ric 0 self 0
+R13 Полигон   R WIN    8.3s kill HP 72/100 vs 0/175 | A 5/11 ric 1 icp 0 self 0 kit 0 zone 0 | B 1/3 ric 0 self 0
+R14 Лабиринт  L WIN    6.3s kill HP 100/100 vs 0/175 | A 5/8 ric 2 icp 0 self 0 kit 0 zone 0 | B 0/0 ric 0 self 0
+R15 Крепости  R WIN    9.3s kill HP 100/100 vs 0/175 | A 5/9 ric 0 icp 0 self 0 kit 0 zone 0 | B 0/3 ric 0 self 0
+R16 Каньон    L WIN    8.1s kill HP 100/100 vs 0/175 | A 5/16 ric 2 icp 0 self 0 kit 0 zone 0 | B 0/4 ric 0 self 0
+
+Чемпион-реплика vs Охотник: 16W 0L 0D
+Чемпион-реплика  acc 39.4% (80/203) ric 26 dealt 2800 taken 56 self 0 icp 7 kits 0 zone 0 | tick avg 2.21ms max 15.3ms >20ms 0
+   hit distances: median 401 min 224 max 1003
+Охотник          acc 3.5% (2/57) ric 0 dealt 56 taken 2800 self 0 icp 10 kits 0 zone 0 | tick avg 0.01ms max 3.3ms >20ms 0
+   hit distances: median 246 min 230 max 246
+debug A {"shots":203,"bank":100,"intercepts":0,"noFireSelf":55,"planTimeouts":0,"learned":1848,"maxMs":14.832709000000001,"readyTicks":1371,"readySeen":427,"lowScore":175,"last":{"mode":"close","want":316,"minD":256,"gx":1030,"gy":470,"aim":0.66,"jf":0,"jr":14,"fire":true,"cost":-39,"kit":false,"threat":null,"x":895.1650463843262,"y":465.9661849336889,"ms":{"goal":0.05,"threats":0.01,"plan":1.88,"aim":0.4,"nEval":585,"nB":4,"nCand":37}},"fireKind":"bank"}

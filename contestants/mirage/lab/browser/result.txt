@@ -1,0 +1,7 @@
+DONE Мираж vs Чемпион-реплика
+round 0 Полигон W t=120.0 hp 55/21 late>50ms=0
+round 1 Лабиринт W t=120.0 hp 100/14 late>50ms=0
+round 2 Крепости L t=120.0 hp 96/100 late>50ms=0
+round 3 Каньон W t=98.6 hp 100/0 late>50ms=0
+score {"W":3,"L":1,"D":0}
+ticks 13759 avg 4.54 p50 3.90 p99 9.50 p999 11.70 max 27.40

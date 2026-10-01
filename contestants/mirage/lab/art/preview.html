@@ -1,0 +1,102 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Mirage preview</title>
+<style>
+  body{margin:0;background:#15151a;color:#ccc;font:12px/1.25 -apple-system,Helvetica,Arial,sans-serif}
+  h2{margin:6px 10px 2px;font-size:14px;color:#eee;font-weight:600}
+  .row{display:flex;gap:8px;padding:4px 10px;align-items:flex-start;flex-wrap:nowrap}
+  .col{display:flex;flex-direction:column;gap:8px}
+  .tile{position:relative;overflow:hidden;flex:none}
+  .tank{position:absolute}
+  .tank img{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 50%}
+  .light{background:#cfc6b0}
+  .dark{background:#2a2a2e}
+  .lbl{position:absolute;left:3px;top:2px;font-size:9px;color:#0009;z-index:5}
+  .dark .lbl{color:#fff9}
+  canvas{image-rendering:pixelated;display:block}
+  .grid{display:grid;gap:6px}
+</style></head><body>
+<script>
+// usage: preview.html?c=cand1            -> full sheet for one candidate
+//        preview.html?c=cand1,cand2&mode=compare -> side-by-side 64px comparison
+const q = new URLSearchParams(location.search);
+const cands = (q.get('c') || 'cand1').split(',');
+const mode = q.get('mode') || 'sheet';
+const LIGHT = '#cfc6b0', DARK = '#2a2a2e';
+const combos = [[0,0],[0,40],[0,-120],[-35,0],[-35,40],[150,-120],[150,0],[90,180],[215,75],[-90,-40]];
+
+function el(tag, cls, parent){ const e=document.createElement(tag); if(cls) e.className=cls; if(parent) parent.appendChild(e); return e; }
+
+// DOM tile: tank of `size` px on a floor tile of `pad` px
+function tile(parent, dir, size, pad, bg, hull, rel, label){
+  const t = el('div', 'tile ' + bg, parent); t.style.width = t.style.height = pad + 'px';
+  if (label) { const l = el('div','lbl',t); l.textContent = label; }
+  const k = el('div', 'tank', t); k.style.width = k.style.height = size + 'px';
+  k.style.left = k.style.top = ((pad - size) / 2) + 'px';
+  const b = el('img', '', k); b.src = dir + '/body.svg'; b.style.transform = `rotate(${hull}deg)`;
+  const tu = el('img', '', k); tu.src = dir + '/turret.svg'; tu.style.transform = `rotate(${hull + rel}deg)`;
+  return t;
+}
+
+function load(src){ return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; }); }
+
+// Canvas tile: rasterise at TRUE 64px (like a canvas game renderer), then show zoomed with pixelated scaling
+async function pix(parent, dir, zoom, bg, hull, rel, label){
+  const wrap = el('div', 'tile ' + bg, parent);
+  const S = 84; // floor patch bigger than the sprite so rotated corners are not clipped
+  const c = el('canvas', '', wrap); c.width = c.height = S; c.style.width = c.style.height = (S * zoom) + 'px';
+  if (label) { const l = el('div','lbl',wrap); l.textContent = label; }
+  const ctx = c.getContext('2d'); ctx.fillStyle = bg === 'light' ? LIGHT : DARK; ctx.fillRect(0,0,S,S);
+  const [bi, ti] = await Promise.all([load(dir + '/body.svg'), load(dir + '/turret.svg')]);
+  for (const [img, a] of [[bi, hull], [ti, hull + rel]]) {
+    if (!img) continue;
+    ctx.save(); ctx.translate(S/2,S/2); ctx.rotate(a * Math.PI / 180); ctx.drawImage(img, -32, -32, 64, 64); ctx.restore();
+  }
+}
+
+function scene(usDir, themDir, s){
+  // in-context frame: our tank and a rival on light and dark floor at sprite size s
+  const us = [[80,90,-20,35],[250,230,160,-150],[420,110,70,-60],[530,260,-135,0]];
+  const them = [[170,180,200,-20],[560,80,110,90]];
+  const row = el('div', '', document.body); row.style.padding = '0 4px';
+  for (const bg of ['light','dark']) {
+    const f = el('div', 'tile ' + bg, row); f.style.width = '640px'; f.style.height = '330px'; f.style.display = 'inline-block'; f.style.margin = '4px 6px';
+    for (const [list, dir] of [[us, usDir], [them, themDir]]) for (const [x, y, h, r] of list) {
+      const w = el('div', '', f); w.style.position = 'absolute'; w.style.left = (x - s/2) + 'px'; w.style.top = (y - s/2) + 'px';
+      const t = tile(w, dir, s, s, bg, h, r); t.style.background = 'transparent'; t.style.overflow = 'visible';
+    }
+  }
+}
+
+if (mode === 'sheet') {
+  const dir = cands[0];
+  el('h2', '', document.body).textContent = dir + ' — intro size (6x) · 64px grid (hull/turret-rel deg) · true-64px raster zoomed 3x';
+  const row = el('div', 'row', document.body);
+  const big = el('div', 'grid', row); big.style.gridTemplateColumns = 'repeat(2, 384px)';
+  tile(big, dir, 384, 384, 'light', 0, 0, 'hull 0 / turret 0');
+  tile(big, dir, 384, 384, 'dark', 0, 0, 'hull 0 / turret 0');
+  tile(big, dir, 384, 384, 'light', -35, 40, 'hull -35 / rel +40');
+  tile(big, dir, 384, 384, 'dark', 150, -120, 'hull 150 / rel -120');
+  const right = el('div', 'col', row);
+  const g = el('div', 'grid', right); g.style.gridTemplateColumns = 'repeat(5, 84px)';
+  for (const bg of ['light','dark']) for (const [h, r] of combos) tile(g, dir, 64, 84, bg, h, r, h + '/' + r);
+  const z = el('div', 'grid', right); z.style.gridTemplateColumns = 'repeat(2, 252px)';
+  pix(z, dir, 3, 'light', 0, 40, 'raster64 0/40');
+  pix(z, dir, 3, 'dark', 0, 40, 'raster64 0/40');
+  pix(z, dir, 3, 'light', 150, -120, 'raster64 150/-120');
+  pix(z, dir, 3, 'dark', -35, 0, 'raster64 -35/0');
+  if (q.get('rival')) { el('h2', '', document.body).textContent = 'in context at 64px vs ' + q.get('rival').split('/').pop(); scene(dir, q.get('rival'), 64); }
+} else if (mode === 'scene') {
+  scene(cands[0], cands[1], +(q.get('s') || 64));
+} else {
+  // compare: each candidate a row: 64px tiles light+dark, then 2x raster zoom
+  for (const dir of cands) {
+    const row = el('div', 'row', document.body);
+    const n = el('div', '', row); n.textContent = dir.split('/').pop(); n.style.width = '46px';
+    const s = +(q.get('s') || 64);
+    for (const bg of ['light','dark']) for (const [h, r] of combos.slice(0,6)) tile(row, dir, s, s + 12, bg, h, r);
+    pix(row, dir, 2, 'light', -35, 40);
+    pix(row, dir, 2, 'dark', 150, -120);
+  }
+}
+</script>
+</body></html>

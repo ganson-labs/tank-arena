@@ -1,0 +1,23 @@
+R 1 Полигон   L WIN   84.7s kill HP 57/100 vs 0/100 | A 3/114 ric 0 icp 10 self 0 kit 0 zone 0 | B 1/92 ric 0 self 0
+R 2 Лабиринт  R LOSS  27.4s kill HP 0/100 vs 57/100 | A 1/35 ric 0 icp 4 self 0 kit 1 zone 0 | B 3/40 ric 0 self 0
+R 3 Крепости  L WIN   92.2s kill HP 100/100 vs 0/100 | A 3/122 ric 0 icp 15 self 0 kit 1 zone 0 | B 1/139 ric 1 self 0
+R 4 Каньон    R LOSS  29.5s kill HP 0/100 vs 100/100 | A 0/45 ric 0 icp 7 self 0 kit 0 zone 0 | B 3/41 ric 0 self 0
+R 5 Полигон   R LOSS  24.9s kill HP 0/100 vs 100/100 | A 0/43 ric 0 icp 5 self 0 kit 0 zone 0 | B 3/41 ric 0 self 0
+R 6 Лабиринт  L DRAW 120.0s time HP 100/100 vs 100/100 | A 1/136 ric 1 icp 15 self 0 kit 2 zone 0 | B 0/154 ric 0 self 0
+R 7 Крепости  R WIN  120.0s time HP 100/100 vs 14/100 | A 3/150 ric 0 icp 24 self 0 kit 2 zone 0 | B 1/149 ric 0 self 0
+R 8 Каньон    L LOSS  42.1s kill HP 0/100 vs 100/100 | A 0/61 ric 0 icp 10 self 0 kit 0 zone 0 | B 3/57 ric 1 self 0
+R 9 Полигон   L WIN   86.0s kill HP 14/100 vs 0/100 | A 2/115 ric 0 icp 20 self 0 kit 0 zone 0 | B 2/138 ric 0 self 0
+R10 Лабиринт  R DRAW 120.0s time HP 100/100 vs 100/100 | A 2/64 ric 1 icp 9 self 0 kit 2 zone 0 | B 0/79 ric 0 self 0
+R11 Крепости  L WIN  112.1s kill HP 100/100 vs 0/100 | A 5/148 ric 4 icp 10 self 0 kit 1 zone 0 | B 0/130 ric 0 self 0
+R12 Каньон    R LOSS  98.4s kill HP 0/100 vs 100/100 | A 1/137 ric 1 icp 17 self 0 kit 0 zone 14 | B 2/125 ric 1 self 0
+R13 Полигон   R WIN   91.1s kill HP 49/100 vs 0/100 | A 2/113 ric 1 icp 18 self 0 kit 0 zone 8 | B 1/148 ric 0 self 0
+R14 Лабиринт  L WIN   91.8s kill HP 46/100 vs 0/100 | A 4/102 ric 2 icp 11 self 0 kit 2 zone 11 | B 1/124 ric 0 self 0
+R15 Крепости  R WIN   97.2s kill HP 100/100 vs 0/100 | A 5/142 ric 1 icp 14 self 0 kit 1 zone 0 | B 1/142 ric 0 self 0
+R16 Каньон    L WIN   98.4s kill HP 57/100 vs 0/100 | A 3/178 ric 1 icp 4 self 0 kit 0 zone 0 | B 1/49 ric 0 self 0
+
+Чемпион-реплика vs Чемпион-реплика: 9W 5L 2D
+Чемпион-реплика  acc 2.1% (35/1705) ric 12 dealt 1340 taken 906 self 0 icp 193 kits 12 zone 33 | tick avg 3.54ms max 45.7ms >20ms 87
+   hit distances: median 436 min 262 max 515
+Чемпион-реплика  acc 1.4% (23/1648) ric 3 dealt 873 taken 1409 self 0 icp 219 kits 18 zone 69 | tick avg 3.69ms max 33.7ms >20ms 91
+   hit distances: median 472 min 317 max 539
+debug A {"shots":1681,"bank":743,"intercepts":24,"noFireSelf":2274,"planTimeouts":887,"learned":16657,"maxMs":45.68354199999885,"readyTicks":14569,"readySeen":8209,"lowScore":4299,"fireKind":"aim","last":{"mode":"hide","want":200,"minD":170,"gx":910,"gy":390,"aim":0.78,"jf":6,"jr":1,"fire":false,"cost":2102,"kit":false,"threat":null,"x":880.3525309198382,"y":532.1988140884621,"ms":{"goal":0.06,"threats":0.01,"plan":2.02,"aim":0.15,"nEval":585,"nB":2,"nCand":28}}}

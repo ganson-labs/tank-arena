@@ -1,0 +1,23 @@
+R 1 Полигон   L WIN    7.1s kill HP 100/100 vs 0/200 | A 4/12 ric 3 icp 1 self 0 kit 0 zone 0 | B 0/8 ric 0 self 28
+R 2 Лабиринт  R WIN   16.6s kill HP 100/100 vs 0/200 | A 1/4 ric 1 icp 0 self 0 kit 1 zone 0 | B 0/17 ric 0 self 168
+R 3 Крепости  L WIN   11.7s kill HP 100/100 vs 0/200 | A 1/4 ric 1 icp 0 self 0 kit 0 zone 0 | B 0/12 ric 0 self 196
+R 4 Каньон    R WIN    7.6s kill HP 100/100 vs 0/200 | A 5/13 ric 0 icp 2 self 0 kit 0 zone 0 | B 0/8 ric 0 self 0
+R 5 Полигон   R WIN    6.9s kill HP 100/100 vs 0/200 | A 4/11 ric 3 icp 0 self 0 kit 0 zone 0 | B 0/7 ric 0 self 28
+R 6 Лабиринт  L WIN   12.9s kill HP 100/100 vs 0/200 | A 3/4 ric 1 icp 0 self 0 kit 0 zone 0 | B 0/13 ric 0 self 84
+R 7 Крепости  R WIN   18.9s kill HP 100/100 vs 0/200 | A 2/4 ric 2 icp 0 self 0 kit 1 zone 0 | B 0/19 ric 0 self 140
+R 8 Каньон    L WIN    6.6s kill HP 100/100 vs 0/200 | A 5/11 ric 2 icp 0 self 0 kit 0 zone 0 | B 0/7 ric 0 self 0
+R 9 Полигон   L WIN   11.5s kill HP 100/100 vs 0/200 | A 5/17 ric 2 icp 3 self 0 kit 0 zone 0 | B 0/12 ric 0 self 0
+R10 Лабиринт  R WIN   16.4s kill HP 100/100 vs 0/200 | A 0/0 ric 0 icp 0 self 0 kit 0 zone 0 | B 0/17 ric 0 self 200
+R11 Крепости  L WIN   12.5s kill HP 100/100 vs 0/200 | A 1/4 ric 1 icp 0 self 0 kit 0 zone 0 | B 0/13 ric 0 self 196
+R12 Каньон    R WIN    7.2s kill HP 100/100 vs 0/200 | A 5/14 ric 1 icp 1 self 0 kit 0 zone 0 | B 0/8 ric 0 self 0
+R13 Полигон   R WIN    8.5s kill HP 100/100 vs 0/200 | A 5/13 ric 2 icp 1 self 0 kit 0 zone 0 | B 0/9 ric 0 self 0
+R14 Лабиринт  L WIN   18.0s kill HP 100/100 vs 0/200 | A 0/0 ric 0 icp 0 self 0 kit 1 zone 0 | B 0/18 ric 0 self 200
+R15 Крепости  R WIN   33.1s kill HP 100/100 vs 0/200 | A 1/2 ric 1 icp 0 self 0 kit 2 zone 0 | B 0/34 ric 0 self 157
+R16 Каньон    L WIN    8.4s kill HP 100/100 vs 0/200 | A 5/14 ric 2 icp 2 self 0 kit 0 zone 0 | B 0/9 ric 0 self 0
+
+Чемпион-реплика vs Манекен: 16W 0L 0D
+Чемпион-реплика  acc 37.0% (47/127) ric 22 dealt 1803 taken 0 self 0 icp 10 kits 5 zone 0 | tick avg 1.98ms max 24.1ms >20ms 1
+   hit distances: median 858 min 371 max 1200
+Манекен          acc 0.0% (0/211) ric 0 dealt 0 taken 3200 self 1397 icp 6 kits 0 zone 0 | tick avg 0.00ms max 0.1ms >20ms 0
+   hit distances: median 1232 min 461 max 1455
+debug A {"shots":127,"bank":59,"intercepts":0,"noFireSelf":106,"planTimeouts":1,"learned":985,"maxMs":23.689625,"readyTicks":4285,"readySeen":353,"lowScore":123,"last":{"mode":"close","want":316,"minD":256,"gx":1310,"gy":470,"aim":0.75,"jf":0,"jr":18,"fire":true,"cost":283,"kit":false,"threat":null,"x":922.728558611152,"y":332.8802170885871,"ms":{"goal":0.04,"threats":0.02,"plan":3.24,"aim":0.47,"nEval":585,"nB":5,"nCand":28}},"fireKind":"aim"}

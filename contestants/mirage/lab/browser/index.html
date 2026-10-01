@@ -1,0 +1,42 @@
+<!doctype html><meta charset="utf-8"><title>browser-check</title>
+<pre id="out">running</pre>
+<script type="module">
+import * as eng from '../../arena/engine.js';
+const params = new URLSearchParams(location.search);
+const A = params.get('a') || '../../tank/bot.js';
+const B = params.get('b') || '../../arena/sparring/hunter/bot.js';
+const rounds = Number(params.get('rounds') || 2);
+const out0 = document.getElementById('out');
+const mk = (url) => new Promise((res) => { const w = new Worker('./bot-worker.js', { type: 'module' }); w.onerror = (e) => { out0.textContent += '\nWORKER ERROR ' + url + ' ' + (e.message || e); }; w.onmessage = (e) => { if (e.data.type === 'loaded') res({ w, info: e.data }); else if (e.data.type === 'error') out0.textContent += '\nLOAD ERROR ' + e.data.error; }; w.postMessage({ type: 'load', url: new URL(url, location.href).href }); });
+window.addEventListener('error', (e) => { out0.textContent += '\nPAGE ERROR ' + e.message; fetch('/result', { method: 'POST', body: out0.textContent }); });
+window.addEventListener('unhandledrejection', (e) => { out0.textContent += '\nREJECT ' + (e.reason?.stack || e.reason); });
+const call = (w, msg) => new Promise((res) => { w.onmessage = (e) => res(e.data); w.postMessage(msg); });
+const out = document.getElementById('out');
+const log = [];
+const [wa, wb] = await Promise.all([mk(A), mk(B)]);
+const times = [];
+let score = { W: 0, L: 0, D: 0 };
+for (let i = 0; i < rounds; i++) {
+  const plan = eng.roundPlan(i);
+  const aSide = plan.swap ? 1 : 0;
+  const bySide = aSide === 0 ? [wa, wb] : [wb, wa];
+  const round = eng.createRound({ mapIndex: plan.mapIndex, tanks: bySide.map((x) => ({ name: x.info.name, stats: x.info.stats })) });
+  for (let s = 0; s < 2; s++) await call(bySide[s].w, { type: 'init', info: { round: i, side: s, mapName: round.map.name, view: eng.botView(round, s) } });
+  let late = 0;
+  while (!round.over) {
+    const [ra, rb] = await Promise.all([call(bySide[0].w, { type: 'tick', state: eng.botView(round, 0) }), call(bySide[1].w, { type: 'tick', state: eng.botView(round, 1) })]);
+    const mine = aSide === 0 ? ra : rb;
+    times.push(mine.dt);
+    if (mine.dt > 50) late++;
+    eng.stepRound(round, [ra.act, rb.act]);
+  }
+  const w = round.winner === null ? 'D' : round.winner === aSide ? 'W' : 'L';
+  score[w]++;
+  log.push(`round ${i} ${round.map.name} ${w} t=${round.time.toFixed(1)} hp ${Math.ceil(round.tanks[aSide].hp)}/${Math.ceil(round.tanks[1 - aSide].hp)} late>50ms=${late}`);
+}
+times.sort((x, y) => x - y);
+const q = (p) => times[Math.min(times.length - 1, Math.floor(times.length * p))].toFixed(2);
+const text = `DONE ${wa.info.name} vs ${wb.info.name}\n${log.join('\n')}\nscore ${JSON.stringify(score)}\nticks ${times.length} avg ${(times.reduce((p, x) => p + x, 0) / times.length).toFixed(2)} p50 ${q(0.5)} p99 ${q(0.99)} p999 ${q(0.999)} max ${times[times.length - 1].toFixed(2)}`;
+out.textContent = text;
+await fetch('/result', { method: 'POST', body: text });
+</script>
